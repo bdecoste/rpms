@@ -3,7 +3,7 @@ set -e
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.6
+    PROXY_GIT_BRANCH=dev
   fi
 
   if [ -z "${FETCH_DIR}" ]; then
@@ -36,11 +36,7 @@ function run_tests() {
           sed -i 's|TEST_F|TEST|g' src/istio/mixerclient/check_cache_test.cc
         fi
 
-        if [ "${BUILD_CONFIG}" == 'debug' ]; then
-          bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root --batch test --test_env=ENVOY_IP_TEST_VERSIONS=v4only -c dbg "//..."
-        else
-          bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root --batch test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} "//..."
-        fi
+        bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} "//..."
 
       fi
     popd

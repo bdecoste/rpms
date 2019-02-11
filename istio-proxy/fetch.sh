@@ -14,7 +14,7 @@ function set_default_envs() {
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.6
+    PROXY_GIT_BRANCH=dev
   fi
 
   if [ -z "${RECIPES_GIT_REPO}" ]; then
@@ -22,7 +22,7 @@ function set_default_envs() {
   fi
 
   if [ -z "${RECIPES_GIT_BRANCH}" ]; then
-    RECIPES_GIT_BRANCH=maistra-0.6
+    RECIPES_GIT_BRANCH=dev
   fi
 
   if [ -z "${CLEAN_FETCH}" ]; then
@@ -51,6 +51,10 @@ function set_default_envs() {
 
   if [ -z "${FETCH_OR_BUILD}" ]; then
     FETCH_OR_BUILD=fetch
+  fi
+
+  if [ -z "${BUILD_SCM_REVISION}" ]; then
+    BUILD_SCM_REVISION=$(date +%s)
   fi
 }
 
@@ -117,7 +121,7 @@ function prune() {
   pushd ${FETCH_DIR}/istio-proxy
     rm -rf bazel/base/execroot
     rm -rf bazel/root/cache
-    find . -name "*.o" | xargs rm
+#    find . -name "*.o" | xargs rm
   popd
 
 }
@@ -158,13 +162,6 @@ function add_custom_recipes() {
   cp -rf recipes/*.sh bazel/base/external/envoy/ci/build_container/build_recipes
 }
 
-function add_cxx_params(){
-  pushd ${FETCH_DIR}/istio-proxy/proxy
-    sed -i '1i build --cxxopt -D_GLIBCXX_USE_CXX11_ABI=1\n' tools/bazel.rc
-    sed -i '1i build --cxxopt -DENVOY_IGNORE_GLIBCXX_USE_CXX11_ABI_ERROR=1\n' tools/bazel.rc
-  popd
-}
-
 function copy_bazel_build_status(){
   cp -f ${RPM_SOURCE_DIR}/bazel_get_workspace_status ${FETCH_DIR}/istio-proxy/proxy/tools/bazel_get_workspace_status
 }
@@ -191,8 +188,8 @@ function fetch() {
           fi
         popd
 
-        add_cxx_params
-        patch_python
+        use_local_go
+        #patch_python
         copy_bazel_build_status
       fi
 
@@ -280,12 +277,26 @@ function create_tarball(){
 
 function add_cxx_params(){
   pushd ${FETCH_DIR}/istio-proxy/proxy
-    sed -i '1i build --cxxopt -D_GLIBCXX_USE_CXX11_ABI=1\n' tools/bazel.rc
-    sed -i '1i build --cxxopt -DENVOY_IGNORE_GLIBCXX_USE_CXX11_ABI_ERROR=1\n' tools/bazel.rc
+    sed -i '1i build --cxxopt -D_GLIBCXX_USE_CXX11_ABI=1\n' .bazelrc
+    sed -i '1i build --cxxopt -DENVOY_IGNORE_GLIBCXX_USE_CXX11_ABI_ERROR=1\n' .bazelrc
+  popd
+}
+
+function use_local_go(){
+  pushd ${FETCH_DIR}/istio-proxy/proxy
+    sed -i 's|go_register_toolchains()|go_register_toolchains(go_version="host")|g' WORKSPACE
+  popd
+}
+
+function add_BUILD_SCM_REVISIONS(){
+  pushd ${FETCH_DIR}/istio-proxy/proxy
+    sed -i "1i BUILD_SCM_REVISION=${BUILD_SCM_REVISION}\n" tools/bazel_get_workspace_status
   popd
 }
 
 preprocess_envs
 fetch
 add_path_markers
+add_cxx_params
+add_BUILD_SCM_REVISIONS
 create_tarball
