@@ -295,11 +295,17 @@ function replace_ssl() {
     popd
     rm -rf istio-proxy-openssl
 
-    git clone http://github.com/bdecoste/envoy-openssl -b proxy
+    git clone http://github.com/bdecoste/envoy-openssl 
     pushd envoy-openssl
       ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/envoy OPENSSL
     popd
     rm -rf envoy-openssl
+
+    git clone http://github.com/bdecoste/jwt-verify-lib-openssl
+    pushd jwt-verify-lib-openssl
+      ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/com_github_google_jwt_verify OPENSSL
+    popd
+    rm -rf jwt-verify-lib-openssl
   popd
 
   rm -rf ${FETCH_DIR}/istio-proxy/bazel/base/external/*boringssl*
