@@ -10,11 +10,11 @@ function check_envs() {
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_REPO}" ]; then
-    PROXY_GIT_REPO=https://github.com/Maistra/proxy
+    PROXY_GIT_REPO=https://github.com/istio/proxy
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.7
+    PROXY_GIT_BRANCH=master
   fi
 
   if [ -z "${RECIPES_GIT_REPO}" ]; then
@@ -287,9 +287,28 @@ function add_BUILD_SCM_REVISIONS(){
   popd
 }
 
+function replace_ssl() {
+  pushd ${FETCH_DIR}/istio-proxy/proxy
+    git clone http://github.com/bdecoste/istio-proxy-openssl
+    pushd istio-proxy-openssl
+      ./openssl.sh ${FETCH_DIR}/istio-proxy/proxy OPENSSL
+    popd
+    rm -rf istio-proxy-openssl
+
+    git clone http://github.com/bdecoste/envoy-openssl -b proxy
+    pushd envoy-openssl
+      ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/envoy OPENSSL
+    popd
+    rm -rf envoy-openssl
+  popd
+
+  rm -rf ${FETCH_DIR}/istio-proxy/bazel/base/external/*boringssl*
+}
+
 preprocess_envs
 fetch
 add_path_markers
-add_cxx_params
+#add_cxx_params
+replace_ssl
 add_BUILD_SCM_REVISIONS
 create_tarball
