@@ -315,7 +315,7 @@ function replace_ssl() {
 preprocess_envs
 fetch
 add_path_markers
-add_cxx_params
-#replace_ssl
+#add_cxx_params
+replace_ssl
 add_BUILD_SCM_REVISIONS
 create_tarball
