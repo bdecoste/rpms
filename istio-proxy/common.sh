@@ -32,7 +32,7 @@ function set_path() {
   fi
 
   if [[ ${PATH} != *"devtoolset"* ]]; then
-    source /opt/rh/devtoolset-4/enable
+    source /opt/rh/devtoolset-6/enable
   fi
 }
 

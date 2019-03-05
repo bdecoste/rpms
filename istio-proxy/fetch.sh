@@ -14,7 +14,7 @@ function set_default_envs() {
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=master
+    PROXY_GIT_BRANCH=release-1.1
   fi
 
   if [ -z "${RECIPES_GIT_REPO}" ]; then
@@ -22,7 +22,7 @@ function set_default_envs() {
   fi
 
   if [ -z "${RECIPES_GIT_BRANCH}" ]; then
-    RECIPES_GIT_BRANCH=maistra-0.7
+    RECIPES_GIT_BRANCH=maistra-0.9
   fi
 
   if [ -z "${CLEAN_FETCH}" ]; then
@@ -289,20 +289,21 @@ function add_BUILD_SCM_REVISIONS(){
 
 function replace_ssl() {
   pushd ${FETCH_DIR}/istio-proxy/proxy
-    git clone http://github.com/bdecoste/istio-proxy-openssl
+    git clone http://github.com/bdecoste/istio-proxy-openssl -b 02112019
     pushd istio-proxy-openssl
       ./openssl.sh ${FETCH_DIR}/istio-proxy/proxy OPENSSL
     popd
     rm -rf istio-proxy-openssl
 
-    git clone http://github.com/bdecoste/envoy-openssl 
+    git clone http://github.com/bdecoste/envoy-openssl -b 02112019
     pushd envoy-openssl
       ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/envoy OPENSSL
     popd
     rm -rf envoy-openssl
 
-    git clone http://github.com/bdecoste/jwt-verify-lib-openssl
+    git clone http://github.com/bdecoste/jwt-verify-lib-openssl -b 02112019
     pushd jwt-verify-lib-openssl
+      cat ${FETCH_DIR}/istio-proxy/bazel/base/external/com_github_google_jwt_verify/WORKSPACE
       ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/com_github_google_jwt_verify OPENSSL
     popd
     rm -rf jwt-verify-lib-openssl
@@ -314,7 +315,7 @@ function replace_ssl() {
 preprocess_envs
 fetch
 add_path_markers
-#add_cxx_params
-replace_ssl
+add_cxx_params
+#replace_ssl
 add_BUILD_SCM_REVISIONS
 create_tarball
