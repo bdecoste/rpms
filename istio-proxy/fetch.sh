@@ -10,11 +10,11 @@ function check_envs() {
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_REPO}" ]; then
-    PROXY_GIT_REPO=https://github.com/Maistra/proxy
+    PROXY_GIT_REPO=https://github.com/dmitri-d/proxy
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.9
+    PROXY_GIT_BRANCH=fix-happy-path
   fi
 
   if [ -z "${RECIPES_GIT_REPO}" ]; then
@@ -59,6 +59,10 @@ function set_default_envs() {
 
   if [ -z "${STRIP_LATOMIC}" ]; then
     STRIP_LATOMIC=false
+  fi
+
+  if [ -z "${REPLACE_SSL}" ]; then
+    REPLACE_SSL=true
   fi
 }
 
@@ -304,10 +308,43 @@ function strip_latomic(){
   fi
 }
 
+function replace_ssl() {
+  if [ "$REPLACE_SSL" = "true" ]; then
+    pushd ${FETCH_DIR}/istio-proxy/proxy
+      git clone http://github.com/bdecoste/istio-proxy-openssl -b 02112019
+      pushd istio-proxy-openssl
+        ./openssl.sh ${FETCH_DIR}/istio-proxy/proxy OPENSSL
+      popd
+      rm -rf istio-proxy-openssl
+
+      git clone http://github.com/bdecoste/envoy-openssl -b 02112019
+      pushd envoy-openssl
+        ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/envoy OPENSSL
+      popd
+      rm -rf envoy-openssl
+
+      git clone http://github.com/bdecoste/jwt-verify-lib-openssl -b 02112019
+      pushd jwt-verify-lib-openssl
+        cat ${FETCH_DIR}/istio-proxy/bazel/base/external/com_github_google_jwt_verify/WORKSPACE
+        ./openssl.sh ${FETCH_DIR}/istio-proxy/bazel/base/external/com_github_google_jwt_verify OPENSSL
+      popd
+      rm -rf jwt-verify-lib-openssl
+    popd
+
+    rm -rf ${FETCH_DIR}/istio-proxy/bazel/base/external/*boringssl*
+
+    # re-fetch for updated dependencies
+    pushd ${FETCH_DIR}/istio-proxy/proxy
+      bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root --batch ${FETCH_OR_BUILD} //...
+    popd
+  fi
+}
+
 preprocess_envs
 fetch
 add_path_markers
-add_cxx_params
+#add_cxx_params
+replace_ssl
 add_BUILD_SCM_REVISIONS
 strip_latomic
 create_tarball
