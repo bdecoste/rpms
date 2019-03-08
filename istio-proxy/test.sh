@@ -43,9 +43,7 @@ function run_tests() {
         bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} "//..."
 
         if [ "${TEST_ENVOY}" == "true" ]; then
-          pushd ${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base/external/envoy
-            bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} --package_path %workspace%:${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/proxy "//test/..."
-          popd
+          bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} "@envoy//test/..."
         fi
       fi
     popd

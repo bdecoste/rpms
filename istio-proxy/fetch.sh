@@ -88,9 +88,6 @@ function prune() {
     find . -name "*.log" | xargs -r rm -rf
   popd
 
-  #prune grpc tests
-  rm -rf ${CACHE_PATH}/base/external/com_github_grpc_grpc/test
-
   pushd ${CACHE_PATH}
     rm -rf base/execroot
     rm -rf root/cache
