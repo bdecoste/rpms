@@ -43,7 +43,7 @@ function run_tests() {
         bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} "//..."
 
         if [ "${TEST_ENVOY}" == "true" ]; then
-          bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --config=${BUILD_CONFIG} "@envoy//test/..."
+          bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --run_under=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/proxy/external_tests.sh --config=${BUILD_CONFIG} "@envoy//test/..."
         fi
       fi
     popd

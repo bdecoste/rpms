@@ -62,6 +62,10 @@ function set_default_envs() {
   if [ -z "${REPLACE_SSL}" ]; then
     REPLACE_SSL=true
   fi
+
+  if [ -z "${BUILD_CONFIG}" ]; then
+    BUILD_CONFIG=release
+  fi
 }
 
 check_envs
@@ -137,6 +141,16 @@ function copy_bazel_build_status(){
   cp -f ${RPM_SOURCE_DIR}/bazel_get_workspace_status ${FETCH_DIR}/istio-proxy/proxy/tools/bazel_get_workspace_status
 }
 
+function add_fetch_config() {
+  BUILD_OPTIONS="
+# Release builds without debug symbols.
+fetch:release --announce_rc=true  
+"
+  pushd ${FETCH_DIR}/istio-proxy/proxy
+    echo "${BUILD_OPTIONS}" >> .bazelrc 
+  popd
+}
+
 function fetch() {
   if [ ! -d "${FETCH_DIR}/istio-proxy" ]; then
     mkdir -p ${FETCH_DIR}/istio-proxy
@@ -147,12 +161,13 @@ function fetch() {
       if [ ! -d "proxy" ]; then
         git clone ${PROXY_GIT_REPO}
         pushd ${FETCH_DIR}/istio-proxy/proxy
-        git checkout ${PROXY_GIT_BRANCH}
+          git checkout ${PROXY_GIT_BRANCH}
           if [ -d ".git" ]; then
             SHA="$(git rev-parse --verify HEAD)"
           fi
         popd
 
+        add_fetch_config
         use_local_go
         copy_bazel_build_status
       fi
@@ -175,7 +190,7 @@ function fetch() {
         set_path
 
         pushd ${FETCH_DIR}/istio-proxy/proxy
-          bazel --output_base=${CACHE_PATH}/base --output_user_root=${CACHE_PATH}/root ${FETCH_OR_BUILD} //...
+          bazel --output_base=${CACHE_PATH}/base --output_user_root=${CACHE_PATH}/root ${FETCH_OR_BUILD} --config=${BUILD_CONFIG} //...
         popd
 
       fi
@@ -265,8 +280,10 @@ function replace_ssl() {
 
     # re-fetch for updated dependencies
     pushd ${FETCH_DIR}/istio-proxy/proxy
-      bazel --output_base=${CACHE_PATH}/base --output_user_root=${CACHE_PATH}/root fetch //...
+      bazel --output_base=${CACHE_PATH}/base --output_user_root=${CACHE_PATH}/root fetch --config=${BUILD_CONFIG} //...
     popd
+
+    prune
   fi
 }
 
