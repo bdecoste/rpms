@@ -217,7 +217,7 @@ function fetch() {
       fi
 
       if [ ! -d "${bazel_dir}" ]; then
-        set_path
+#        set_path
 
         pushd ${FETCH_DIR}/istio-proxy/proxy
           bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root --batch ${FETCH_OR_BUILD} //...

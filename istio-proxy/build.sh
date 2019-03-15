@@ -115,7 +115,7 @@ function copy_binary() {
   fi
 }
 
-set_path
+#set_path
 copy_fetch
 run_build
 create_artifacts
