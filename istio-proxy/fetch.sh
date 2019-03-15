@@ -139,7 +139,7 @@ function copy_bazel_build_status(){
 
 function replace_python() {
   pushd ${CACHE_PATH}
-    find . -type f -name "rules" -exec sed -i 's|PYTHON  := /usr/bin/python|PYTHON  := /usr/bin/python3|g' {} +
+    find . -type f -name "rules" -exec sed -i 's|/usr/bin/python|/usr/bin/python3|g' {} +
   popd
 }
 
