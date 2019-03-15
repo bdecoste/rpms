@@ -271,6 +271,7 @@ function strip_latomic(){
 
 preprocess_envs
 fetch
+replace_python
 prune
 remove_build_artifacts
 add_custom_recipes
