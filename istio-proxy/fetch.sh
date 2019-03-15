@@ -6,6 +6,8 @@ function check_envs() {
     echo "FETCH_DIR required. Please set"
     exit 1
   fi
+
+  CACHE_PATH=${FETCH_DIR}/istio-proxy/bazel
 }
 
 function set_default_envs() {
