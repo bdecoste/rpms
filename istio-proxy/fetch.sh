@@ -130,7 +130,7 @@ function remove_build_artifacts() {
 
 function add_custom_recipes() {
   # use custom dependency recipes
-  cp -rf recipes/*.sh bazel/base/external/envoy/ci/build_container/build_recipes
+  cp -rf ${FETCH_DIR}/istio-proxy/recipes/*.sh ${CACHE_PATH}/base/external/envoy/ci/build_container/build_recipes
 }
 
 function copy_bazel_build_status(){
