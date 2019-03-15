@@ -137,6 +137,12 @@ function copy_bazel_build_status(){
   cp -f ${RPM_SOURCE_DIR}/bazel_get_workspace_status ${FETCH_DIR}/istio-proxy/proxy/tools/bazel_get_workspace_status
 }
 
+function replace_python() {
+  pushd ${CACHE_DIR}
+    find . -type f -name "rules" -exec sed -i 's|PYTHON  := /usr/bin/python|PYTHON  := /usr/bin/python3|g' {} +
+  popd
+}
+
 function fetch() {
   if [ ! -d "${FETCH_DIR}/istio-proxy" ]; then
     mkdir -p ${FETCH_DIR}/istio-proxy
