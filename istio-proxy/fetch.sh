@@ -56,6 +56,10 @@ function set_default_envs() {
   if [ -z "${BUILD_SCM_REVISION}" ]; then
     BUILD_SCM_REVISION=$(date +%s)
   fi
+
+  if [ -z "${STRIP_LATOMIC}" ]; then
+    STRIP_LATOMIC=true
+  fi
 }
 
 check_envs
@@ -72,74 +76,39 @@ function preprocess_envs() {
 }
 
 function prune() {
-  #prune git
-  if [ ! "${CREATE_ARTIFACTS}" == "true" ]; then
-    find . -name ".git*" | xargs -r rm -rf
-  fi
-
-  #prune logs
-  find . -name "*.log" | xargs -r rm -rf
-
-  #prune gzip
-  #find . -name "*.gz" | xargs -r rm -rf
-
-  #prune go sdk
-  GO_HOME=/usr/lib/golang
-  #rm -rf bazel/base/external/go_sdk/{api,bin,lib,pkg,wrc,test,misc,doc,blog}
-  #ln -s ${GO_HOME}/api bazel/base/external/go_sdk/api
-  #ln -s ${GO_HOME}/bin bazel/base/external/go_sdk/bin
-  #ln -s ${GO_HOME}/lib bazel/base/external/go_sdk/lib
-  #ln -s ${GO_HOME}/pkg bazel/base/external/go_sdk/pkg
-  #ln -s ${GO_HOME}/src bazel/base/external/go_sdk/src
-  #ln -s ${GO_HOME}/test bazel/base/external/go_sdk/test
-
-  #prune boringssl tests
-  #rm -rf boringssl/crypto/cipher_extra/test
-
-  #prune grpc tests
-  rm -rf bazel/base/external/com_github_grpc_grpc/test
-
-  #prune build_tools
-  #cp -rf BUILD.bazel bazel/base/external/io_bazel_rules_go/go/toolchain/BUILD.bazel
-
-  #prune unecessary files
-  #pushd ${FETCH_DIR}/istio-proxy/bazel
-    #find . -name "*.html" | xargs -r rm -rf
-    #find . -name "*.zip" | xargs -r rm -rf
-    #find . -name "example" | xargs -r rm -rf
-    #find . -name "examples" | xargs -r rm -rf
-    #find . -name "sample" | xargs -r rm -rf
-    #find . -name "samples" | xargs -r rm -rf
-    #find . -name "android" | xargs -r rm -rf
-    #find . -name "osx" | xargs -r rm -rf
-    #find . -name "*.a" | xargs -r rm -rf
-    #find . -name "*.so" | xargs -r rm -rf
-    #rm -rf bazel/base/external/go_sdk/src/archive/
-  #popd
-
-
   pushd ${FETCH_DIR}/istio-proxy
-    rm -rf bazel/base/execroot
-    rm -rf bazel/root/cache
-#    find . -name "*.o" | xargs -r rm
+    #prune git
+    if [ ! "${CREATE_ARTIFACTS}" == "true" ]; then
+      find . -name ".git*" | xargs -r rm -rf
+    fi
+
+    #prune logs
+    find . -name "*.log" | xargs -r rm -rf
+  popd
+
+  pushd ${CACHE_PATH}
+    rm -rf base/execroot
+    rm -rf root/cache
   popd
 
 }
 
 function correct_links() {
-  # replace links with copies (links are fully qualified paths so don't travel)
-  pushd ${FETCH_DIR}/istio-proxy/bazel
+  # replace fully qualified links with relative links (former does not travel)
+  pushd ${CACHE_PATH}
     find . -lname '/*' -exec ksh -c '
+      PWD=$(pwd)
+echo $PWD
       for link; do
         target=$(readlink "$link")
         link=${link#./}
         root=${link//+([!\/])/..}; root=${root#/}; root=${root%..}
         rm "$link"
         target="$root${target#/}"
-        target=$(echo $target | sed "s|../../..${FETCH_DIR}/istio-proxy/bazel/base|../../../base|")
-        target=$(echo $target | sed "s|../..${FETCH_DIR}/istio-proxy/bazel/base|../../base|")
-        target=$(echo $target | sed "s|../../..${FETCH_DIR}/istio-proxy/bazel/root|../../../root|")
-        target=$(echo $target | sed "s|..${FETCH_DIR}/istio-proxy/bazel/root|../root|")
+        target=$(echo $target | sed "s|../../..${PWD}/base|../../../base|")
+        target=$(echo $target | sed "s|../..${PWD}/base|../../base|")
+        target=$(echo $target | sed "s|../../..${PWD}/root|../../../root|")
+        target=$(echo $target | sed "s|..${PWD}/root|../root|")
         target=$(echo $target | sed "s|../../../usr/lib/jvm|/usr/lib/jvm|")
         ln -s "$target" "$link"
       done
@@ -220,7 +189,7 @@ function fetch() {
 #        set_path
 
         pushd ${FETCH_DIR}/istio-proxy/proxy
-          bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root --batch ${FETCH_OR_BUILD} //...
+          bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root ${FETCH_OR_BUILD} //...
         popd
 
         if [ "${DEBUG_FETCH}" == "true" ]; then
@@ -237,14 +206,6 @@ function fetch() {
         rm -rf bazel
         cp -rfp bazelorig bazel
       fi
-
-      prune
-
-      correct_links
-
-      remove_build_artifacts
-
-      add_custom_recipes
 
     popd
   fi
@@ -287,9 +248,27 @@ function add_BUILD_SCM_REVISIONS(){
   popd
 }
 
+# For devtoolset-7/8
+function strip_latomic(){
+  if [ "$STRIP_LATOMIC" = "true" ]; then
+    pushd ${CACHE_PATH}/base/external
+      find . -type f -name "configure.ac" -exec sed -i 's/-latomic//g' {} +
+      find . -type f -name "CMakeLists.txt" -exec sed -i 's/-latomic//g' {} +
+      find . -type f -name "configure" -exec sed -i 's/-latomic//g' {} +
+      find . -type f -name "CROSSTOOL" -exec sed -i 's/-latomic//g' {} +
+      find . -type f -name "envoy_build_system.bzl" -exec sed -i 's/-latomic//g' {} +
+    popd
+  fi
+}
+
 preprocess_envs
 fetch
+prune
+remove_build_artifacts
+add_custom_recipes
 add_path_markers
 add_cxx_params
 add_BUILD_SCM_REVISIONS
+strip_latomic
+correct_links
 create_tarball
