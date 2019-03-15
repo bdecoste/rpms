@@ -216,7 +216,7 @@ function create_tarball(){
     # create tarball
     pushd ${FETCH_DIR}
       rm -rf proxy-full.tar.xz
-      tar cf proxy-full.tar istio-proxy --exclude=istio-proxy/bazelorig --exclude=istio-proxy/bazel/X --atime-preserve
+      tar cf proxy-full.tar istio-proxy --atime-preserve
       xz proxy-full.tar
     popd
   fi
