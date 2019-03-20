@@ -7,7 +7,7 @@ function check_envs() {
     exit 1
   fi
 
-  CACHE_PATH=${FETCH_DIR}/istio-proxy/bazel
+  CACHE_DIR=${FETCH_DIR}/istio-proxy/bazel
 }
 
 function set_default_envs() {
@@ -88,7 +88,7 @@ function prune() {
     find . -name "*.log" | xargs -r rm -rf
   popd
 
-  pushd ${CACHE_PATH}
+  pushd ${CACHE_DIR}
     rm -rf base/execroot
     rm -rf root/cache
   popd
@@ -97,7 +97,7 @@ function prune() {
 
 function correct_links() {
   # replace fully qualified links with relative links (former does not travel)
-  pushd ${CACHE_PATH}
+  pushd ${CACHE_DIR}
     find . -lname '/*' -exec ksh -c '
       PWD=$(pwd)
 echo $PWD
@@ -130,7 +130,7 @@ function remove_build_artifacts() {
 
 function add_custom_recipes() {
   # use custom dependency recipes
-  cp -rf ${FETCH_DIR}/istio-proxy/recipes/*.sh ${CACHE_PATH}/base/external/envoy/ci/build_container/build_recipes
+  cp -rf ${FETCH_DIR}/istio-proxy/recipes/*.sh ${CACHE_DIR}/base/external/envoy/ci/build_container/build_recipes
 }
 
 function copy_bazel_build_status(){
@@ -138,7 +138,7 @@ function copy_bazel_build_status(){
 }
 
 function replace_python() {
-  pushd ${CACHE_PATH}
+  pushd ${CACHE_DIR}
     find . -type f -name "rules" -exec sed -i 's|/usr/bin/python|/usr/bin/python3|g' {} +
     find . -type f -name "rules" | xargs touch -m -t 210012120101
     sed -i 's|/usr/bin/python|/usr/bin/python3|g' base/external/local_config_cc/extra_tools/envoy_cc_wrapper
@@ -274,7 +274,7 @@ function add_BUILD_SCM_REVISIONS(){
 # For devtoolset-7/8
 function strip_latomic(){
   if [ "$STRIP_LATOMIC" = "true" ]; then
-    pushd ${CACHE_PATH}/base/external
+    pushd ${CACHE_DIR}/base/external
       find . -type f -name "configure.ac" -exec sed -i 's/-latomic//g' {} +
       find . -type f -name "CMakeLists.txt" -exec sed -i 's/-latomic//g' {} +
       find . -type f -name "configure" -exec sed -i 's/-latomic//g' {} +
