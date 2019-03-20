@@ -236,6 +236,8 @@ function update_compiler_flags() {
     sed -i 's|compiler_flag: "-fcolor-diagnostics"|cxx_builtin_include_directory: "/usr/include"|g' ./bazel/base/external/local_config_cc/CROSSTOOL
     sed -i 's|compiler_flag: "-Wself-assign"|cxx_builtin_include_directory: "/usr/lib/gcc/x86_64-redhat-linux/8/include"|g' ./bazel/base/external/local_config_cc/CROSSTOOL
     sed -i 's|compiler_flag: "-Wthread-safety"||g' ./bazel/base/external/local_config_cc/CROSSTOOL
+
+    sed -i 's|["-static-libstdc++", "-static-libgcc"],|#["-static-libstdc++", "-static-libgcc"],|g' bazel/base/external/envoy/bazel/envoy_build_system.bzl
   popd
 }
 
