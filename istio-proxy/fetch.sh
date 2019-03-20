@@ -237,7 +237,7 @@ function update_compiler_flags() {
     sed -i 's|compiler_flag: "-Wself-assign"|cxx_builtin_include_directory: "/usr/lib/gcc/x86_64-redhat-linux/8/include"|g' base/external/local_config_cc/CROSSTOOL
     sed -i 's|compiler_flag: "-Wthread-safety"||g' base/external/local_config_cc/CROSSTOOL
 
-    sed -i 's|["-static-libstdc++", "-static-libgcc"],|#["-static-libstdc++", "-static-libgcc"],|g' base/external/envoy/bazel/envoy_build_system.bzl
+    sed -i 's|\["-static-libstdc++", "-static-libgcc"],||g' base/external/envoy/bazel/envoy_build_system.bzl
   popd
 }
 
@@ -286,7 +286,7 @@ function strip_latomic(){
 
 function patch_class-memaccess() {
   pushd ${FETCH_DIR}/istio-proxy/proxy
-    sed -i "s|memset(&old_stats_, 0, sizeof(old_stats_));|free(&old_stats_);\n    ::istio::mixerclient::Statistics new_stats;\n    old_stats_ = new_stats;\n|g" src/envoy/utils/stats.cc
+    sed -i "s|memset(&old_stats_, 0, sizeof(old_stats_));|free(&old_stats_);\n  ::istio::mixerclient::Statistics new_stats;\n  old_stats_ = new_stats;\n|g" src/envoy/utils/stats.cc
   popd
 }
 
