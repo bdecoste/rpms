@@ -290,9 +290,9 @@ function patch_class-memaccess() {
   popd
 }
 
-patch_class-memaccess
 preprocess_envs
 fetch
+patch_class-memaccess
 replace_python
 update_compiler_flags
 prune
