@@ -141,6 +141,10 @@ function replace_python() {
   pushd ${CACHE_PATH}
     find . -type f -name "rules" -exec sed -i 's|/usr/bin/python|/usr/bin/python3|g' {} +
     find . -type f -name "rules" | xargs touch -m -t 210012120101
+    sed -i 's|/usr/bin/python|/usr/bin/python3|g' bazel/base/external/local_config_cc/extra_tools/envoy_cc_wrapper
+    chmod 777 bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
+    sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
+    sed -i "s|PYTHON_BINARY = 'python'|PYTHON_BINARY = 'python3'|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
   popd
 }
 
@@ -195,7 +199,7 @@ function fetch() {
       fi
 
       if [ ! -d "${bazel_dir}" ]; then
-#        set_path
+        set_path
 
         pushd ${FETCH_DIR}/istio-proxy/proxy
           bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root ${FETCH_OR_BUILD} //...
@@ -224,6 +228,14 @@ function add_path_markers() {
   pushd ${FETCH_DIR}/istio-proxy
     sed -i "s|${FETCH_DIR}/istio-proxy/bazel|BUILD_PATH_MARKER/bazel|" ./bazel/base/external/local_config_cc/cc_wrapper.sh
     sed -i "s|${FETCH_DIR}/istio-proxy/bazel|BUILD_PATH_MARKER/bazel|" ./bazel/base/external/local_config_cc/CROSSTOOL
+  popd
+}
+
+function update_compiler_flags() {
+  pushd ${CACHE_DIR}
+    sed -i 's|compiler_flag: "-fcolor-diagnostics"|cxx_builtin_include_directory: "/usr/include"|g' ./bazel/base/external/local_config_cc/CROSSTOOL
+    sed -i 's|compiler_flag: "-Wself-assign"|cxx_builtin_include_directory: "/usr/lib/gcc/x86_64-redhat-linux/8/include"|g' ./bazel/base/external/local_config_cc/CROSSTOOL
+    sed -i 's|compiler_flag: "-Wthread-safety"||g' ./bazel/base/external/local_config_cc/CROSSTOOL
   popd
 }
 
@@ -277,6 +289,7 @@ prune
 remove_build_artifacts
 add_custom_recipes
 add_path_markers
+remove_compiler_flags
 add_cxx_params
 add_BUILD_SCM_REVISIONS
 strip_latomic

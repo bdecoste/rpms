@@ -16,23 +16,10 @@ function check_dependencies() {
 }
 
 function set_path() {
-  RHEL=$(grep -Fc "Red Hat Enterprise Linux Server" /etc/redhat-release || true)
-  if [ "$RHEL" == "1" ]; then
-    if [[ ${PATH} != *"llvm"* ]]; then
-      source /opt/rh/llvm-toolset-7/enable
-    fi
-  else
-    if [ ! -f "cmake" ]; then
-      ln -s /usr/bin/cmake3 cmake
-    fi
-
-    if [[ ${PATH} != *"$(pwd)"* ]]; then
-      export PATH=$(pwd):$PATH
-    fi
+  if [ ! -f "/root/python" ]; then
+    cp /usr/bin/python3 /root/python
   fi
 
-  if [[ ${PATH} != *"devtoolset"* ]]; then
-    source /opt/rh/devtoolset-4/enable
-  fi
+  export PATH=$PATH:/root
 }
 
