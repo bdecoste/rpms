@@ -284,6 +284,13 @@ function strip_latomic(){
   fi
 }
 
+function patch_class-memaccess() {
+  pushd ${FETCH_DIR}/istio-proxy/proxy
+    sed -i "s|memset(&old_stats_, 0, sizeof(old_stats_));|free(&old_stats_);\n    ::istio::mixerclient::Statistics new_stats;\n    old_stats_ = new_stats;" src/envoy/utils/stats.cc
+  popd
+}
+
+patch_class-memaccess
 preprocess_envs
 fetch
 replace_python
