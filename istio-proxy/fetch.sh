@@ -141,10 +141,10 @@ function replace_python() {
   pushd ${CACHE_PATH}
     find . -type f -name "rules" -exec sed -i 's|/usr/bin/python|/usr/bin/python3|g' {} +
     find . -type f -name "rules" | xargs touch -m -t 210012120101
-    sed -i 's|/usr/bin/python|/usr/bin/python3|g' bazel/base/external/local_config_cc/extra_tools/envoy_cc_wrapper
-    chmod 777 bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
-    sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
-    sed -i "s|PYTHON_BINARY = 'python'|PYTHON_BINARY = 'python3'|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
+    sed -i 's|/usr/bin/python|/usr/bin/python3|g' base/external/local_config_cc/extra_tools/envoy_cc_wrapper
+    #chmod 777 base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
+    #sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
+    sed -i "s|PYTHON_BINARY = 'python'|PYTHON_BINARY = 'python3'|g" base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
   popd
 }
 
@@ -233,11 +233,11 @@ function add_path_markers() {
 
 function update_compiler_flags() {
   pushd ${CACHE_DIR}
-    sed -i 's|compiler_flag: "-fcolor-diagnostics"|cxx_builtin_include_directory: "/usr/include"|g' ./bazel/base/external/local_config_cc/CROSSTOOL
-    sed -i 's|compiler_flag: "-Wself-assign"|cxx_builtin_include_directory: "/usr/lib/gcc/x86_64-redhat-linux/8/include"|g' ./bazel/base/external/local_config_cc/CROSSTOOL
-    sed -i 's|compiler_flag: "-Wthread-safety"||g' ./bazel/base/external/local_config_cc/CROSSTOOL
+    sed -i 's|compiler_flag: "-fcolor-diagnostics"|cxx_builtin_include_directory: "/usr/include"|g' base/external/local_config_cc/CROSSTOOL
+    sed -i 's|compiler_flag: "-Wself-assign"|cxx_builtin_include_directory: "/usr/lib/gcc/x86_64-redhat-linux/8/include"|g' base/external/local_config_cc/CROSSTOOL
+    sed -i 's|compiler_flag: "-Wthread-safety"||g' base/external/local_config_cc/CROSSTOOL
 
-    sed -i 's|["-static-libstdc++", "-static-libgcc"],|#["-static-libstdc++", "-static-libgcc"],|g' bazel/base/external/envoy/bazel/envoy_build_system.bzl
+    sed -i 's|["-static-libstdc++", "-static-libgcc"],|#["-static-libstdc++", "-static-libgcc"],|g' base/external/envoy/bazel/envoy_build_system.bzl
   popd
 }
 
@@ -287,6 +287,7 @@ function strip_latomic(){
 preprocess_envs
 fetch
 replace_python
+update_compiler_flags
 prune
 remove_build_artifacts
 add_custom_recipes
