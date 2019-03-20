@@ -292,7 +292,6 @@ prune
 remove_build_artifacts
 add_custom_recipes
 add_path_markers
-remove_compiler_flags
 add_cxx_params
 add_BUILD_SCM_REVISIONS
 strip_latomic
