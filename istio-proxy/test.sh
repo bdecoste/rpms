@@ -6,8 +6,12 @@ function set_default_envs() {
     PROXY_GIT_BRANCH=maistra-0.9
   fi
 
+  if [ -z "${PROXY_NAME}" ]; then
+    PROXY_NAME=servicemesh-proxy
+  fi
+
   if [ -z "${FETCH_DIR}" ]; then
-    FETCH_DIR=${RPM_BUILD_DIR}/istio-proxy
+    FETCH_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}
   fi
 
   if [ -z "${BUILD_CONFIG}" ]; then
@@ -16,6 +20,10 @@ function set_default_envs() {
 
   if [ -z "${RPM_SOURCE_DIR}" ]; then
     RPM_SOURCE_DIR=.
+  fi
+
+  if [ -z "${TEST_ENVOY}" ]; then
+    TEST_ENVOY=true
   fi
 }
 
@@ -27,7 +35,7 @@ check_dependencies
 
 function run_tests() {
   if [ "${RUN_TESTS}" == "true" ]; then
-    pushd ${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/proxy
+    pushd ${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/proxy
       if [ "${RUN_TESTS}" == "true" ]; then
         if [ "${FORCE_TEST_FAILURE}" == "true" ]; then
           sed -i 's|ASSERT_TRUE|ASSERT_FALSE|g' src/istio/mixerclient/check_cache_test.cc
@@ -36,8 +44,11 @@ function run_tests() {
           sed -i 's|TEST_F|TEST|g' src/istio/mixerclient/check_cache_test.cc
         fi
 
-        bazel --output_base=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/base --output_user_root=${RPM_BUILD_DIR}/istio-proxy-${PROXY_GIT_BRANCH}/istio-proxy/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --test_output=all --config=${BUILD_CONFIG} "//..."
+        bazel --output_base=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base --output_user_root=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --test_output=all --config=${BUILD_CONFIG} "//..."
 
+        if [ "${TEST_ENVOY}" == "true" ]; then
+          bazel --output_base=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base --output_user_root=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --run_under=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/proxy/external_tests.sh --config=${BUILD_CONFIG} "@envoy//test/..."
+        fi
       fi
     popd
   fi
