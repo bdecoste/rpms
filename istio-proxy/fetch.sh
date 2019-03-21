@@ -62,6 +62,10 @@ function set_default_envs() {
   if [ -z "${STRIP_LATOMIC}" ]; then
     STRIP_LATOMIC=true
   fi
+
+  if [ -z "${REPLACE_SSL}" ]; then
+    REPLACE_SSL=true
+  fi
 }
 
 check_envs
@@ -290,6 +294,39 @@ function patch_class-memaccess() {
   popd
 }
 
+function replace_ssl() {
+  if [ "$REPLACE_SSL" = "true" ]; then
+    pushd ${FETCH_DIR}/istio-proxy/proxy
+      git clone http://github.com/bdecoste/istio-proxy-openssl -b 02112019
+      pushd istio-proxy-openssl
+        ./openssl.sh ${FETCH_DIR}/istio-proxy/proxy OPENSSL
+      popd
+      rm -rf istio-proxy-openssl
+
+      git clone http://github.com/bdecoste/envoy-openssl -b 02112019
+      pushd envoy-openssl
+        ./openssl.sh ${CACHE_PATH}/base/external/envoy OPENSSL
+      popd
+      rm -rf envoy-openssl
+
+      git clone http://github.com/bdecoste/jwt-verify-lib-openssl -b 02112019
+      pushd jwt-verify-lib-openssl
+        ./openssl.sh ${CACHE_PATH}/base/external/com_github_google_jwt_verify OPENSSL
+      popd
+      rm -rf jwt-verify-lib-openssl
+    popd
+
+    rm -rf ${CACHE_PATH}/base/external/*boringssl*
+
+    # re-fetch for updated dependencies
+    pushd ${FETCH_DIR}/istio-proxy/proxy
+      bazel --output_base=${CACHE_PATH}/base --output_user_root=${CACHE_PATH}/root fetch //...
+    popd
+
+    prune
+  fi
+}
+
 preprocess_envs
 fetch
 patch_class-memaccess
@@ -299,7 +336,8 @@ prune
 remove_build_artifacts
 add_custom_recipes
 add_path_markers
-add_cxx_params
+#add_cxx_params
+replace_ssl
 add_BUILD_SCM_REVISIONS
 strip_latomic
 correct_links
