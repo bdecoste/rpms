@@ -149,8 +149,8 @@ function replace_python() {
     #chmod 777 base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
     #sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
     #sed -i "s|PYTHON_BINARY = 'python'|PYTHON_BINARY = 'python3'|g" base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
-    find . -type f -name "*.py" -exec sed -i 's|.iteritems()|.items()|g' {} +
-    find . -type f -name "*.yaml" -exec sed -i 's|.iteritems()|.items()|g' {} +
+    find base/external -type f -name "*.py" -exec sed -i 's|.iteritems()|.items()|g' {} +
+    find base/external -type f -name "*.yaml" -exec sed -i 's|.iteritems()|.items()|g' {} +
   popd
 }
 
