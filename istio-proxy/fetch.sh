@@ -305,22 +305,22 @@ function replace_ssl() {
 
       git clone http://github.com/bdecoste/envoy-openssl -b 02112019
       pushd envoy-openssl
-        ./openssl.sh ${CACHE_PATH}/base/external/envoy OPENSSL
+        ./openssl.sh ${CACHE_DIR}/base/external/envoy OPENSSL
       popd
       rm -rf envoy-openssl
 
       git clone http://github.com/bdecoste/jwt-verify-lib-openssl -b 02112019
       pushd jwt-verify-lib-openssl
-        ./openssl.sh ${CACHE_PATH}/base/external/com_github_google_jwt_verify OPENSSL
+        ./openssl.sh ${CACHE_DIR}/base/external/com_github_google_jwt_verify OPENSSL
       popd
       rm -rf jwt-verify-lib-openssl
     popd
 
-    rm -rf ${CACHE_PATH}/base/external/*boringssl*
+    rm -rf ${CACHE_DIR}/base/external/*boringssl*
 
     # re-fetch for updated dependencies
     pushd ${FETCH_DIR}/istio-proxy/proxy
-      bazel --output_base=${CACHE_PATH}/base --output_user_root=${CACHE_PATH}/root fetch //...
+      bazel --output_base=${CACHE_DIR}/base --output_user_root=${CACHE_DIR}/root fetch //...
     popd
 
     prune
