@@ -16,7 +16,7 @@ function set_default_envs() {
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.9
+    PROXY_GIT_BRANCH=maistra-0.10
   fi
 
   if [ -z "${RECIPES_GIT_REPO}" ]; then
@@ -24,7 +24,7 @@ function set_default_envs() {
   fi
 
   if [ -z "${RECIPES_GIT_BRANCH}" ]; then
-    RECIPES_GIT_BRANCH=maistra-0.9
+    RECIPES_GIT_BRANCH=maistra-0.10
   fi
 
   if [ -z "${CLEAN_FETCH}" ]; then
