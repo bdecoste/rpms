@@ -9,45 +9,45 @@
 %global debug_package   %{nil}
 %endif
 
-%global git_commit 5c494348b336f4d3b793b86c4ab696a9c0d43417 
+%global git_commit f95f8530df5b6b71c163bf23c7bd2e2a3501382d 
+%global git_shortcommit  %(c=%{git_commit}; echo ${c:0:7})
+
+# https://github.com/istio/proxy
+%global provider        github
+%global provider_tld    com
+%global project         istio
+%global repo            proxy
+%global provider_prefix %{provider}.%{provider_tld}/%{project}/%{repo}
 
 Name:           istio-proxy
-Version:        0.9.0
-Release:        2%{?dist}
+Version:        0.10.0
+Release:        1%{?dist}
 Summary:        The Istio Proxy is a microservice proxy that can be used on the client and server side, and forms a microservice mesh. The Proxy supports a large number of features.
 License:        ASL 2.0
-URL:            https://github.com/Maistra/proxy
+URL:            https://%{provider_prefix}
 
 #Common
 BuildRequires:  bazel = 0.22.0
 BuildRequires:  ninja-build
-BuildRequires:  devtoolset-4-gcc
-BuildRequires:  devtoolset-4-gcc-c++
-BuildRequires:  devtoolset-4-libatomic-devel
-BuildRequires:  devtoolset-4-libstdc++-devel
-BuildRequires:  devtoolset-4-runtime
-BuildRequires:  devtoolset-4-binutils
-BuildRequires:  libtool
+BuildRequires:  gcc
+BuildRequires:  gcc-c++
+BuildRequires:  make
+BuildRequires:  patch
+BuildRequires:  ksh
+BuildRequires:  xz
 BuildRequires:  golang
 BuildRequires:  automake
-BuildRequires:  autoconf
-BuildRequires:  m4
-BuildRequires:  perl
-BuildRequires:  binutils
-
-%if 0%{?centos} >= 7
+BuildRequires:  python3
 BuildRequires:  cmake3
-%else
-BuildRequires:  llvm-toolset-7-cmake
-BuildRequires:  llvm-toolset-7-runtime
-BuildRequires:  llvm-toolset-7-cmake-data
-%endif
+BuildRequires:  openssl
+BuildRequires:  openssl-devel
 
 Source0:        proxy-full-%{version}.tar.xz
 Source1:        build.sh
 Source2:        test.sh
 Source3:        fetch.sh
 Source4:        common.sh
+Source5:        bazel_get_workspace_status
 
 %description
 The Istio Proxy is a microservice proxy that can be used on the client and server side, and forms a microservice mesh. The Proxy supports a large number of features.
@@ -73,7 +73,7 @@ istio-proxy is the proxy required by the Istio Pilot Agent that talks to Istio p
 %endif
 
 cd ..
-FETCH_DIR= CREATE_ARTIFACTS= %{SOURCE1}
+PROXY_NAME=istio-proxy FETCH_DIR= CREATE_ARTIFACTS= %{SOURCE1}
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -83,15 +83,13 @@ cp -pav ${RPM_BUILD_DIR}/envoy ${RPM_BUILD_ROOT}/usr/local/bin
 
 %check
 cd ..
-RUN_TESTS=true %{SOURCE2}
+PROXY_NAME=istio-proxy RUN_TESTS=true %{SOURCE2}
 
 %files
 /usr/local/bin/envoy
 
 %changelog
-* Thu Mar 07 2019 Dmitri Dolguikh <ddolguik@redhat.com>
-  Release 0.9.0-2
-* Mon Mar 04 2019 Dmitri Dolguikh <ddolguik@redhat.com>
+* Thu Mar 04 2019 Dmitri Dolguikh <ddolguik@redhat.com>
   Release 0.9.0-1
 * Thu Feb 14 2019 Kevin Conner <kconner@redhat.com>
   Release 0.8.0-1

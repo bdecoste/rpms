@@ -290,7 +290,7 @@ function strip_latomic(){
   fi
 }
 
-function patch_class-memaccess() {
+function patch_class_memaccess() {
   pushd ${FETCH_DIR}/istio-proxy/proxy
 #    sed -i "s|memset(\&old_stats_, 0, sizeof(old_stats_));|free(\&old_stats_);\n  ::istio::mixerclient::Statistics new_stats;\n  old_stats_ = new_stats;|g" src/envoy/utils/stats.cc
     echo "build --cxxopt -Wno-error=class-memaccess" >> .bazelrc
@@ -332,7 +332,7 @@ function replace_ssl() {
 
 preprocess_envs
 fetch
-patch_class-memaccess
+patch_class_memaccess
 replace_python
 update_compiler_flags
 prune

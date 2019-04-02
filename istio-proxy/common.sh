@@ -7,7 +7,7 @@ fi
 
 function check_dependencies() {
   RESULT=$(bazel version)
-  rm -rf ~/.cache/bazel
+  rm -rf ${HOME}/.cache/bazel
 
   if [[ $RESULT != *"${BAZEL_VERSION}"* ]]; then
     echo "Error: Istio Proxy requires Bazel ${BAZEL_VERSION}"
@@ -16,10 +16,10 @@ function check_dependencies() {
 }
 
 function set_path() {
-  if [ ! -f "/root/python" ]; then
-    cp /usr/bin/python3 /root/python
+  if [ ! -f "${HOME}/python" ]; then
+    cp /usr/bin/python3 ${HOME}/python
   fi
 
-  export PATH=$PATH:/root
+  export PATH=$PATH:$HOME
 }
 
