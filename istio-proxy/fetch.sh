@@ -268,6 +268,11 @@ function add_cxx_params(){
 function use_local_go(){
   pushd ${FETCH_DIR}/istio-proxy/proxy
     sed -i 's|go_register_toolchains()|go_register_toolchains(go_version="host")|g' WORKSPACE
+  popd
+}
+
+function update_go_deps(){
+  pushd ${FETCH_DIR}/istio-proxy/proxy
     sed -i 's|def.bzl|deps.bzl|g' WORKSPACE
   popd
 }
@@ -346,6 +351,7 @@ remove_build_artifacts
 add_custom_recipes
 add_path_markers
 #add_cxx_params
+update_go_deps
 replace_ssl
 add_BUILD_SCM_REVISIONS
 strip_latomic
