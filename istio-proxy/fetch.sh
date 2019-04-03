@@ -180,7 +180,7 @@ function fetch() {
         popd
 
         update_envoy
-        #use_local_go
+        use_local_go
         copy_bazel_build_status
       fi
 
