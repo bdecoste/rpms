@@ -268,6 +268,7 @@ function add_cxx_params(){
 function use_local_go(){
   pushd ${FETCH_DIR}/istio-proxy/proxy
     sed -i 's|go_register_toolchains()|go_register_toolchains(go_version="host")|g' WORKSPACE
+    sed -i 's|def.bzl|deps.bzl|g' WORKSPACE
   popd
 }
 
