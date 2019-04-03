@@ -341,7 +341,16 @@ function replace_ssl() {
   fi
 }
 
+function update_envoy(){
+  pushd 
+    sed -i "s|925810d00b0d3095a8e67fd4e04e0f597ed188bb|8912fa36acdf4367d37998d98cead376762d2b49|g" ${FETCH_DIR}/istio-proxy/proxy/WORKSPACE
+    sed -i "s|26d1f14e881455546cf0e222ec92a8e1e5f65cb2c5761d63c66598b39cd9c47d|4a87094ef0a113a66baa5841cc19a0eb8524e2078cf9b495ce3f950705c63905|g" ${FETCH_DIR}/istio-proxy/proxy/WORKSPACE
+  popd
+}
+
+
 preprocess_envs
+update_envoy
 fetch
 patch_class_memaccess
 replace_python
