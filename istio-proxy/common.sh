@@ -7,7 +7,7 @@ fi
 
 function check_dependencies() {
   RESULT=$(bazel version)
-  rm -rf ~/.cache/bazel
+  rm -rf ${HOME}/.cache/bazel
 
   if [[ $RESULT != *"${BAZEL_VERSION}"* ]]; then
     echo "Error: Istio Proxy requires Bazel ${BAZEL_VERSION}"
@@ -16,23 +16,10 @@ function check_dependencies() {
 }
 
 function set_path() {
-  RHEL=$(grep -Fc "Red Hat Enterprise Linux Server" /etc/redhat-release || true)
-  if [ "$RHEL" == "1" ]; then
-    if [[ ${PATH} != *"llvm"* ]]; then
-      source /opt/rh/llvm-toolset-7/enable
-    fi
-  else
-    if [ ! -f "cmake" ]; then
-      ln -s /usr/bin/cmake3 cmake
-    fi
-
-    if [[ ${PATH} != *"$(pwd)"* ]]; then
-      export PATH=$(pwd):$PATH
-    fi
+  if [ ! -f "${HOME}/python" ]; then
+    cp /usr/bin/python3 ${HOME}/python
   fi
 
-  if [[ ${PATH} != *"devtoolset"* ]]; then
-    source /opt/rh/devtoolset-4/enable
-  fi
+  export PATH=$PATH:$HOME
 }
 
