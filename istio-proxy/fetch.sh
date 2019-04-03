@@ -327,6 +327,11 @@ function replace_ssl() {
     popd
 
     prune
+
+    pushd ${CACHE_DIR}
+      find . -type f -name "rules" | xargs touch -m -t 210012120101
+    popd
+
   fi
 }
 
