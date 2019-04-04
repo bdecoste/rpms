@@ -344,8 +344,8 @@ prune
 remove_build_artifacts
 add_custom_recipes
 add_path_markers
-#add_cxx_params
-replace_ssl
+add_cxx_params
+#replace_ssl
 add_BUILD_SCM_REVISIONS
 strip_latomic
 correct_links
