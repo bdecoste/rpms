@@ -154,15 +154,6 @@ function replace_python() {
   popd
 }
 
-function update_envoy(){
-  pushd ${FETCH_DIR}/istio-proxy/proxy
-    sed -i "s|925810d00b0d3095a8e67fd4e04e0f597ed188bb|8912fa36acdf4367d37998d98cead376762d2b49|g" WORKSPACE
-    sed -i "s|26d1f14e881455546cf0e222ec92a8e1e5f65cb2c5761d63c66598b39cd9c47d|4a87094ef0a113a66baa5841cc19a0eb8524e2078cf9b495ce3f950705c63905|g" WORKSPACE
-    sed -i "s|d225acc90bc3a8c420a9bcd1f033033c1ccd7fe0|eb9225ce361affe561592e0912320b9db84985d0|g" repositories.bzl
-    sed -i "s|01508c8f47c99509130f128924f07f3a60be05d039cff571bb11d60bb11a3581|a4cb4b0c3ebb191b798594aca674ad47eee255dcb4c26885cf7f49777703484f|g" repositories.bzl
-  popd
-}
-
 function fetch() {
   if [ ! -d "${FETCH_DIR}/istio-proxy" ]; then
     mkdir -p ${FETCH_DIR}/istio-proxy
@@ -179,7 +170,6 @@ function fetch() {
           fi
         popd
 
-        update_envoy
         use_local_go
         copy_bazel_build_status
       fi
@@ -281,12 +271,6 @@ function use_local_go(){
   popd
 }
 
-function update_go_deps(){
-  pushd ${FETCH_DIR}/istio-proxy/proxy
-    sed -i 's|def.bzl|deps.bzl|g' WORKSPACE
-  popd
-}
-
 function add_BUILD_SCM_REVISIONS(){
   pushd ${FETCH_DIR}/istio-proxy/proxy
     sed -i "1i BUILD_SCM_REVISION=${BUILD_SCM_REVISION}\n" tools/bazel_get_workspace_status
@@ -361,7 +345,6 @@ remove_build_artifacts
 add_custom_recipes
 add_path_markers
 #add_cxx_params
-#update_go_deps
 replace_ssl
 add_BUILD_SCM_REVISIONS
 strip_latomic
