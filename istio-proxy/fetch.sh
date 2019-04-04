@@ -19,14 +19,6 @@ function set_default_envs() {
     PROXY_GIT_BRANCH=pr2158
   fi
 
-  if [ -z "${RECIPES_GIT_REPO}" ]; then
-    RECIPES_GIT_REPO=https://github.com/Maistra/recipes-istio-proxy
-  fi
-
-  if [ -z "${RECIPES_GIT_BRANCH}" ]; then
-    RECIPES_GIT_BRANCH=maistra-0.10
-  fi
-
   if [ -z "${CLEAN_FETCH}" ]; then
     CLEAN_FETCH=true
   fi
@@ -132,11 +124,6 @@ function remove_build_artifacts() {
   rm -rf bazel/base/external/envoy_deps_cache_*
 }
 
-function add_custom_recipes() {
-  # use custom dependency recipes
-  cp -rf ${FETCH_DIR}/istio-proxy/recipes/*.sh ${CACHE_DIR}/base/external/envoy/ci/build_container/build_recipes
-}
-
 function copy_bazel_build_status(){
   cp -f ${RPM_SOURCE_DIR}/bazel_get_workspace_status ${FETCH_DIR}/istio-proxy/proxy/tools/bazel_get_workspace_status
 }
@@ -172,31 +159,6 @@ function fetch() {
 
         use_local_go
         copy_bazel_build_status
-      fi
-
-      if [ ! "$FETCH_ONLY" = "true" ]; then
-        #clone dependency source and custom recipes
-        if [ ! -d "recipes" ]; then
-          # benchmark e1c3a83b8197cf02e794f61228461c27d4e78cfb
-          # cares cares-1_14_0
-          # gperftools 2.6.3
-          # libevent 2.1.8-stable
-          # luajit 2.0.5
-          # nghttp2 1.32.0
-          # yaml-cpp 0.6.2
-          # nghttp2 1.31.1
-          # yaml-cpp 0.6.1
-          # zlib 1.2.11
-
-          git clone ${RECIPES_GIT_REPO} -b ${RECIPES_GIT_BRANCH} recipes
-        fi
-
-        #fetch dependency sources
-        for filename in recipes/*.sh
-        do
-          FETCH=true ./$filename
-        done
-        rm -rf *.gz
       fi
 
       bazel_dir="bazel"
@@ -342,7 +304,6 @@ replace_python
 update_compiler_flags
 prune
 remove_build_artifacts
-add_custom_recipes
 add_path_markers
 #add_cxx_params
 replace_ssl
