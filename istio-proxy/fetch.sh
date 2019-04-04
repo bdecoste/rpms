@@ -12,11 +12,11 @@ function check_envs() {
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_REPO}" ]; then
-    PROXY_GIT_REPO=https://github.com/Maistra/proxy
+    PROXY_GIT_REPO=https://github.com/bdecoste/proxy
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.10
+    PROXY_GIT_BRANCH=pr2158
   fi
 
   if [ -z "${RECIPES_GIT_REPO}" ]; then
