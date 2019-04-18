@@ -3,7 +3,7 @@ set -e
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.10
+    PROXY_GIT_BRANCH=maistra-0.11
   fi
 
   if [ -z "${PROXY_NAME}" ]; then
