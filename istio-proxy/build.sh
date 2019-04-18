@@ -3,7 +3,7 @@ set -e
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=maistra-0.10
+    PROXY_GIT_BRANCH=maistra-0.11
   fi
 
   if [ -z "${PROXY_NAME}" ]; then
@@ -13,8 +13,6 @@ function set_default_envs() {
   if [ -z "${FETCH_DIR}" ]; then
     FETCH_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}
   fi
-
-  CACHE_DIR=${FETCH_DIR}/istio-proxy/bazel
 
   if [ -z "${BUILD_CONFIG}" ]; then
     BUILD_CONFIG=release
@@ -31,6 +29,8 @@ function set_default_envs() {
   if [ -z "${STRIP}" ]; then
     STRIP="--strip-unneeded"
   fi
+
+  CACHE_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel
 }
 
 set_default_envs

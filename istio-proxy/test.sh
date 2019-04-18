@@ -14,8 +14,6 @@ function set_default_envs() {
     FETCH_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}
   fi
 
-  CACHE_DIR=${FETCH_DIR}/istio-proxy/bazel
-
   if [ -z "${BUILD_CONFIG}" ]; then
     BUILD_CONFIG=release
   fi
@@ -27,6 +25,8 @@ function set_default_envs() {
   if [ -z "${TEST_ENVOY}" ]; then
     TEST_ENVOY=true
   fi
+
+  CACHE_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel
 }
 
 set_default_envs
