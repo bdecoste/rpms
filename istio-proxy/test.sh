@@ -14,6 +14,8 @@ function set_default_envs() {
     FETCH_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}
   fi
 
+  CACHE_DIR=${FETCH_DIR}/istio-proxy/bazel
+
   if [ -z "${BUILD_CONFIG}" ]; then
     BUILD_CONFIG=release
   fi
@@ -44,9 +46,11 @@ function run_tests() {
           sed -i 's|TEST_F|TEST|g' src/istio/mixerclient/check_cache_test.cc
         fi
 
+        set_python_rules_date
         bazel --output_base=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base --output_user_root=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --test_output=all --config=${BUILD_CONFIG} "//..."
 
         if [ "${TEST_ENVOY}" == "true" ]; then
+          set_python_rules_date
           bazel --output_base=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base --output_user_root=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/root test --test_env=ENVOY_IP_TEST_VERSIONS=v4only --test_output=all --run_under=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/proxy/external_tests.sh --config=${BUILD_CONFIG} "@envoy//test/..."
         fi
       fi

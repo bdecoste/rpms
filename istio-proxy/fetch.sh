@@ -131,9 +131,9 @@ function copy_bazel_build_status(){
 }
 
 function replace_python() {
+
   pushd ${CACHE_DIR}
     find . -type f -name "rules" -exec sed -i 's|/usr/bin/python|/usr/bin/python3|g' {} +
-    find . -type f -name "rules" | xargs touch -m -t 210012120101
     sed -i 's|/usr/bin/python|/usr/bin/python3|g' base/external/local_config_cc/extra_tools/envoy_cc_wrapper
     #chmod 777 base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
     #sed -i "s|/usr/bin/env python|/usr/bin/env python3|g" bazel/base/execroot/__main__/bazel-out/host/bin/external/bazel_tools/tools/build_defs/pkg/build_tar
@@ -141,6 +141,8 @@ function replace_python() {
     find base/external -type f -name "*.py" -exec sed -i 's|.iteritems()|.items()|g' {} +
     find base/external -type f -name "*.yaml" -exec sed -i 's|.iteritems()|.items()|g' {} +
   popd
+
+  set_python_rules_date
 }
 
 function fetch() {
@@ -292,9 +294,7 @@ function replace_ssl() {
 
     prune
 
-    pushd ${CACHE_DIR}
-      find . -type f -name "rules" | xargs touch -m -t 210012120101
-    popd
+    set_python_rules_date
 
   fi
 }

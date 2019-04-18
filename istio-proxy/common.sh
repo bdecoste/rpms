@@ -14,6 +14,11 @@ function check_dependencies() {
     exit -1
   fi
 }
+function set_python_rules_date() {
+  pushd ${CACHE_DIR}
+    find . -type f -name "rules" | xargs touch -m -t 210012120101
+  popd
+}
 
 function set_path() {
   if [ ! -f "${HOME}/python" ]; then

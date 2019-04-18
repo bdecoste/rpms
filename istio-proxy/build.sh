@@ -14,6 +14,8 @@ function set_default_envs() {
     FETCH_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}
   fi
 
+  CACHE_DIR=${FETCH_DIR}/istio-proxy/bazel
+
   if [ -z "${BUILD_CONFIG}" ]; then
     BUILD_CONFIG=release
   fi
@@ -71,6 +73,7 @@ function run_build() {
     sed -i "s|BUILD_PATH_MARKER/bazel|${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel|" ${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base/external/local_config_cc/cc_wrapper.sh
     sed -i "s|BUILD_PATH_MARKER/bazel|${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel|" ${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base/external/local_config_cc/CROSSTOOL
 
+    set_python_rules_date
     RECIPES_DIR=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME} bazel --output_base=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/base --output_user_root=${RPM_BUILD_DIR}/${PROXY_NAME}-${PROXY_GIT_BRANCH}/${PROXY_NAME}/bazel/root build --config=${BUILD_CONFIG} "//..."
 
   popd
