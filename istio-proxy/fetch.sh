@@ -12,13 +12,13 @@ function check_envs() {
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_REPO}" ]; then
-    PROXY_GIT_REPO=https://github.com/bdecoste/proxy
-#    PROXY_GIT_REPO=https://github.com/istio/proxy
+#    PROXY_GIT_REPO=https://github.com/bdecoste/proxy
+    PROXY_GIT_REPO=https://github.com/istio/proxy
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
-    PROXY_GIT_BRANCH=pr2158
-#    PROXY_GIT_BRANCH=1.1.3
+#    PROXY_GIT_BRANCH=pr2158
+    PROXY_GIT_BRANCH=1.1.3
   fi
 
   if [ -z "${CLEAN_FETCH}" ]; then
