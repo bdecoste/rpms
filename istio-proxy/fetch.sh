@@ -18,7 +18,7 @@ function set_default_envs() {
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
 #    PROXY_GIT_BRANCH=pr2158
-    PROXY_GIT_BRANCH=1.1.3
+    PROXY_GIT_BRANCH=master
   fi
 
   if [ -z "${CLEAN_FETCH}" ]; then
