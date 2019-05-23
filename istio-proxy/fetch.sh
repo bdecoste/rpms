@@ -156,6 +156,7 @@ function fetch() {
         git checkout ${PROXY_GIT_BRANCH}
           if [ -d ".git" ]; then
             SHA="$(git rev-parse --verify HEAD)"
+            BUILD_SCM_REVISION="git_commit_$SHA"
           fi
         popd
 
