@@ -12,7 +12,7 @@ function check_envs() {
 
 function set_default_envs() {
   if [ -z "${PROXY_GIT_REPO}" ]; then
-    PROXY_GIT_REPO=https://github.com/maistra/proxy
+    PROXY_GIT_REPO=https://github.com/istio/proxy
   fi
 
   if [ -z "${PROXY_GIT_BRANCH}" ]; then
@@ -153,7 +153,7 @@ function fetch() {
       if [ ! -d "proxy" ]; then
         git clone ${PROXY_GIT_REPO}
         pushd ${FETCH_DIR}/istio-proxy/proxy
-        git checkout ${PROXY_GIT_BRANCH}
+        git checkout release-1.2
           if [ -d ".git" ]; then
             SHA="$(git rev-parse --verify HEAD)"
           fi
@@ -172,8 +172,9 @@ function fetch() {
         set_path
 
         pushd ${FETCH_DIR}/istio-proxy/proxy
-          bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root ${FETCH_OR_BUILD} //...
-        popd
+          bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root ${FETCH_OR_BUILD} "//..."
+          bazel --output_base=${FETCH_DIR}/istio-proxy/bazel/base --output_user_root=${FETCH_DIR}/istio-proxy/bazel/root ${FETCH_OR_BUILD} "@com_googlesource_quiche//..."
+ 	popd
 
         if [ "${DEBUG_FETCH}" == "true" ]; then
           cp -rfp bazel bazelorig
@@ -263,6 +264,7 @@ function patch_class_memaccess() {
 
 function replace_ssl() {
   if [ "$REPLACE_SSL" = "true" ]; then
+
     pushd ${FETCH_DIR}/istio-proxy/proxy
       git clone http://github.com/maistra/istio-proxy-openssl -b ${PROXY_GIT_BRANCH}
       pushd istio-proxy-openssl
@@ -270,7 +272,7 @@ function replace_ssl() {
       popd
       rm -rf istio-proxy-openssl
 
-      git clone http://github.com/maistra/envoy-openssl -b ${PROXY_GIT_BRANCH}
+      git clone http://github.com/bdecoste/envoy-openssl -b release-1.2
       pushd envoy-openssl
         ./openssl.sh ${CACHE_DIR}/base/external/envoy OPENSSL
       popd
@@ -281,6 +283,12 @@ function replace_ssl() {
         ./openssl.sh ${CACHE_DIR}/base/external/com_github_google_jwt_verify OPENSSL
       popd
       rm -rf jwt-verify-lib-openssl
+
+      git clone http://github.com/bdecoste/quiche-openssl -b release-1.2
+      pushd quiche-openssl
+        ./openssl.sh ${CACHE_DIR}/base/external/com_googlesource_quiche OPENSSL
+      popd
+      rm -rf quiche-openssl
     popd
 
     rm -rf ${CACHE_DIR}/base/external/*boringssl*
