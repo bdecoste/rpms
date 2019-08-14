@@ -377,6 +377,13 @@ echo "${BUILD_OPTIONS}" >> .bazelrc
 
 }
 
+remove_rpath() {
+  pushd ${CACHE_DIR}
+    crosstool_lib=$(find . -name "crosstool_lib.bzl" -type f)
+    sed -i 's|-Wl,-rpath,$ORIGIN/%{runtime_library_search_directories}||g' ${crosstool_lib}
+    touch -m -t 210012120101 ${crosstool_lib}
+  popd
+}
 
 preprocess_envs
 fetch
@@ -392,4 +399,5 @@ add_BUILD_SCM_REVISIONS
 strip_latomic
 correct_links
 add_annobin_flags
+remove_rpath
 create_tarball
